@@ -27,6 +27,7 @@ out/
 !**/src/test/**/out/
 **/generated/
 
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
