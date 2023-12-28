@@ -6,13 +6,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Hello;
 import study.querydsl.entity.QHello;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
+@Transactional // 기본적으로 Rollback 작업 수행
+//@Commit 테스트 결과도 반영시키려면 Commit 어노테이션 사용
 @SpringBootTest
 class QuerydslApplicationTests {
 
