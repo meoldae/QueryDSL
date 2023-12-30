@@ -39,7 +39,7 @@ class MemberTest {
         oldMembers.add(member2);
         oldMembers.add(member3);
         oldMembers.add(member4);
-        
+
         em.persist(member1);
         em.persist(member2);
         em.persist(member3);
