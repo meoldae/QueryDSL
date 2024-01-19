@@ -22,11 +22,12 @@ public class QuerydslBasicTest {
     EntityManager em;
 
     JPAQueryFactory queryFactory;
+    // Spring 에서 동시성 문제가 발생하지 않도록 설계되어 있으니 필드로 사용 권장
 
     @BeforeEach
     public void setTestCase(){
         queryFactory = new JPAQueryFactory(em);
-        
+
         Team teamA = new Team("TeamA");
         Team teamB = new Team("TeamA");
         em.persist(teamA);
@@ -61,7 +62,11 @@ public class QuerydslBasicTest {
 //        QMember m = new QMember("m");
         QMember m = QMember.member;
 
-        Member findMember = queryFactory.select(m).from(m).where(m.username.eq("Member1")).fetchOne();
+        Member findMember = queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("Member1"))
+                .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("Member1");
     }
