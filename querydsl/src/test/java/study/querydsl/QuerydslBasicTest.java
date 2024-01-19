@@ -131,6 +131,7 @@ public class QuerydslBasicTest {
 
         Member fetchOne = queryFactory
                 .selectFrom(member)
+                .where(member.username.eq("Member1"))
                 .fetchOne();
 
         Member fetchFirst = queryFactory
@@ -183,5 +184,46 @@ public class QuerydslBasicTest {
         assertThat(member6.getUsername()).isEqualTo("Member6");
         assertThat(memberNull.getUsername()).isNull();
 
+    }
+
+    @Test
+    public void paging1() {
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.asc().nullsLast())
+                .offset(1) // N 번째 부터, 단 offset은 0부터 시작함을 명심하자.
+                .limit(2) // 시작 지점부터 N 개의 결과
+                .fetch();
+
+        assertThat(fetch.size()).isEqualTo(2);
+
+        Member member2 = fetch.get(0);
+        Member member3 = fetch.get(1);
+
+        assertThat(member2.getUsername()).isEqualTo("Member2");
+        assertThat(member3.getUsername()).isEqualTo("Member3");
+    }
+
+    @Test
+    public void paging2() {
+        QueryResults<Member> queryResults = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.asc().nullsLast())
+                .offset(1)
+                .limit(2)
+                .fetchResults();
+
+        assertThat(queryResults.getTotal()).isEqualTo(4);
+        assertThat(queryResults.getOffset()).isEqualTo(1);
+        assertThat(queryResults.getLimit()).isEqualTo(2);
+        assertThat(queryResults.getResults().size()).isEqualTo(2);
+
+        // 하지만 fetchResults는 Deprecated 된 API 이므로 totalCount는 다음의 구문을 사용하자.
+        Long count = queryFactory
+                .select(member.count())
+                .from(member)
+                .fetchOne();
+
+        assertThat(count).isEqualTo(4);
     }
 }
