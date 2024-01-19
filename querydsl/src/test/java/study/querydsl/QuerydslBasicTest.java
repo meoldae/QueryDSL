@@ -60,6 +60,7 @@ public class QuerydslBasicTest {
     @Test
     public void QueryDSLTest(){
 //        QMember m = new QMember("m");
+        // ↑ 같은 테이블을 Join 해야 할 때 alias를 다르게 하기 위해 사용함
         QMember m = QMember.member;
 
         Member findMember = queryFactory
