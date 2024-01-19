@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
@@ -115,8 +118,39 @@ public class QuerydslBasicTest {
                         member.age.eq(15)
                 )
                 .fetchOne();
-                // ',' 쉼표 사용해도 and() 로 
+                // ',' 쉼표 사용해도 and() 로
 
         assertThat(findMember.getUsername()).isEqualTo("Member1");
+    }
+
+    @Test
+    public void fetchTest() {
+        List<Member> fetchList = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        Member fetchOne = queryFactory
+                .selectFrom(member)
+                .fetchOne();
+
+        Member fetchFirst = queryFactory
+                .selectFrom(member)
+                .fetchFirst();
+        // limit(1).fetchOne() 과 동일
+
+        /*
+        QueryResults<Member> memberQueryResults = queryFactory.
+                selectFrom(member)
+                .fetchResults();
+
+        long count = queryFactory
+                .selectFrom(member)
+                .fetchCount();
+
+        fetchResults 는 복잡한 Query 에서 예외가 발생하므로 fetch를 사용하고 limit, offset 등을 사용하고
+        전체 수가 필요하면 count 쿼리를 직접 작성하여 사용하자!
+        현재 Deprecated 된 API
+         */
+
     }
 }
