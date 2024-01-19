@@ -2,7 +2,6 @@ package study.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,8 @@ import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
 @Transactional
@@ -61,7 +61,7 @@ public class QuerydslBasicTest {
     public void QueryDSLTest(){
 //        QMember m = new QMember("m");
         // ↑ 같은 테이블을 Join 해야 할 때 alias를 다르게 하기 위해 사용함
-        QMember m = QMember.member;
+        QMember m = member;
 
         Member findMember = queryFactory
                 .select(m)
@@ -72,4 +72,51 @@ public class QuerydslBasicTest {
         assertThat(findMember.getUsername()).isEqualTo("Member1");
     }
 
+    @Test
+    public void search(){
+        Member findMember = queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("Member1")
+                        .and(member.age.eq(15)))
+                .fetchOne();
+
+                /* 여러 조건 구문
+                .where(member.username.eq("Member1")
+
+                .where(member.username.ne("Member1")
+                .where(member.username.ne("Member1").not()
+
+                .where(member.username.isNotNull()
+
+                .where(member.age.in(10, 20))
+                .where(member.age.notIn(10, 20))
+                .where(member.age.between(10, 20)
+
+                .where(member.age.goe(10))
+                .where(member.age.gt(10))
+                .where(member.age.loe(10))
+                .where(member.age.lt(10))
+
+                .where(member.username.like("Member%")        // Member%
+                .where(member.username.contains("Member")     // %Member%
+                .where(member.username.startsWith("Member")   // Member%
+                .where(member.username.endsWith("Member")     // %Member
+                 */
+
+    assertThat(findMember.getUsername()).isEqualTo("Member1");
+    }
+
+    @Test
+    public void searchAndParam() {
+        Member findMember = queryFactory
+                .selectFrom(member)
+                .where(
+                        member.username.eq("Member1"),
+                        member.age.eq(15)
+                )
+                .fetchOne();
+                // ',' 쉼표 사용해도 and() 로 
+
+        assertThat(findMember.getUsername()).isEqualTo("Member1");
+    }
 }
