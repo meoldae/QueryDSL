@@ -270,4 +270,38 @@ public class QuerydslBasicTest {
 
     }
 
+    @Test
+    public void join() {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .join(member.team, team)
+                .where(team.teamName.eq("TeamA"))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("Member1", "Member2");
+    }
+
+    /**
+     * 모든 Member, Team 테이블 값을 Join 한 후 조건 적용.
+     * DB 최적화가 되긴 하나, 사용하는 DB 별로 다름.
+     * 외부 join을 사용하려면 join on 절을 사용해야 함.
+     */
+    @Test
+    public void thetaJoin() {
+        em.persist(new Member("TeamA"));
+        em.persist(new Member("TeamB"));
+
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.teamName))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("TeamA", "TeamB");
+    }
+
 }
