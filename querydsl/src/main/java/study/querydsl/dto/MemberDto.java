@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
+@ToString 
 public class MemberDto {
     private String username;
     private int age;
