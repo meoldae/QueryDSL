@@ -217,7 +217,7 @@ public class QuerydslIntermediateTest {
 //    private Predicate ageEq(Integer ageParam) {
 //        return ageParam != null ? member.age.eq(ageParam) : null;
 //    }
-    
+
      // BooleanExpression을 사용하면 BooleanBuilder처럼 조립도 가능
     private BooleanExpression usernameEq(String usernameParam) {
         return usernameParam != null ? member.username.eq(usernameParam) : null;
@@ -231,4 +231,49 @@ public class QuerydslIntermediateTest {
         return usernameEq(usernameParam).and(ageEq(ageParam));
     }
 
+    @Test
+    public void bulkUpate() {
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(25))
+                .execute();
+
+        assertThat(count).isEqualTo(2);
+
+        /**
+         * 주의 !
+         * 벌크 연산은 영속성 컨텍스트에 영향을 끼치지 않고 DB에 직접 관여하므로 괴리가 발생
+         * 조회시 DB에서 쿼리는 날아가지만, 영속성 컨텍스트에서 1차 캐시가 이미 있다고 판단하여 변경되기 이전의 값을 반환한다.
+         * 때문에 flush, clear를 수행하여 DB와 영속성 컨텍스트의 컨디션을 맞추자.
+         */
+
+        em.flush();
+        em.clear();
+    }
+
+    @Test
+    public void bulkAdd() {
+        long count = queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member : result) {
+            System.out.println("member = " + member);
+        }
+    }
+
+    @Test
+    public void bulkDelete() {
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
 }
