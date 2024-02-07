@@ -2,7 +2,9 @@ package study.querydsl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
@@ -189,6 +191,44 @@ public class QuerydslIntermediateTest {
                 .where(builder)
                 .from(member)
                 .fetch();
+    }
+
+    @Test
+    public void dynamicQueryByWhereParam() {
+        String usernameParam = "Member1";
+        Integer ageParam = 15;
+
+        List<Member> result = searchMemberByParam2(usernameParam, ageParam);
+
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    public List<Member> searchMemberByParam2(String usernameParam, Integer ageParam) {
+        return queryFactory.selectFrom(member)
+//                .where(usernameEq(usernameParam), ageEq(ageParam))
+                .where(combinedEq(usernameParam, ageParam))
+                .fetch();
+    }
+
+//    private Predicate usernameEq(String usernameParam) {
+//        return usernameParam != null ? member.username.eq(usernameParam) : null;
+//    }
+//
+//    private Predicate ageEq(Integer ageParam) {
+//        return ageParam != null ? member.age.eq(ageParam) : null;
+//    }
+    
+     // BooleanExpression을 사용하면 BooleanBuilder처럼 조립도 가능
+    private BooleanExpression usernameEq(String usernameParam) {
+        return usernameParam != null ? member.username.eq(usernameParam) : null;
+    }
+
+    private BooleanExpression ageEq(Integer ageParam) {
+        return ageParam != null ? member.age.eq(ageParam) : null;
+    }
+
+    private BooleanExpression combinedEq(String usernameParam, Integer ageParam) {
+        return usernameEq(usernameParam).and(ageEq(ageParam));
     }
 
 }
