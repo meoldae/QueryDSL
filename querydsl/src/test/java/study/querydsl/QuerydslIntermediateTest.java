@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.Team;
@@ -139,7 +140,22 @@ public class QuerydslIntermediateTest {
         // as를 통해 별칭을 설정하여 정상 작동
     }
 
+    @Test
+    public void findDtoByQueryProjection() {
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
 
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
 
+        /**
+         * 왜 Projections.constructor 말고 QueryProjection을 쓰는가 ?
+         * Projections.constructor은 파라미터의 타입이 잘못되어도 컴파일 시점에 오류를 검출하지 못하고 런타임에 오류가 발생한다.
+         * 다만, Q객체를 생성해야하고 Dto에 QueryDSL에 대한 의존성을 갖게 된다.
+         */
+    }
 
 }
