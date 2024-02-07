@@ -1,9 +1,11 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import study.querydsl.entity.Team;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
@@ -156,6 +159,36 @@ public class QuerydslIntermediateTest {
          * Projections.constructor은 파라미터의 타입이 잘못되어도 컴파일 시점에 오류를 검출하지 못하고 런타임에 오류가 발생한다.
          * 다만, Q객체를 생성해야하고 Dto에 QueryDSL에 대한 의존성을 갖게 된다.
          */
+    }
+
+    @Test
+    public void dynamicQueryByBooleanBuilder() {
+        String usernameParam = "Member1";
+        Integer ageParam = 15;
+
+        List<Member> result = searchMemberByParam1(usernameParam, ageParam);
+
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    public List<Member> searchMemberByParam1(String usernameParam, Integer ageParam) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        // 생성 시 초기 조건 설정도 가능
+        // BooleanBuilder builder = new BooleanBuilder(member.username.eq(usernameParam));
+
+        if (usernameParam != null) {
+            builder.and(member.username.eq(usernameParam));
+        }
+
+        if (ageParam != null) {
+            builder.and(member.age.eq(ageParam));
+        }
+
+        return queryFactory.select(member)
+                .where(builder)
+                .from(member)
+                .fetch();
     }
 
 }
