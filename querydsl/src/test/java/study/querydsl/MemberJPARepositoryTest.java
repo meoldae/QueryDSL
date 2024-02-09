@@ -110,4 +110,22 @@ class MemberJPARepositoryTest {
         assertThat(result2).extracting("username").contains("Member3", "Member4");
 
     }
+
+    @Test
+    public void searchParameterTest() {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
+        condition.setTeamName("TeamB");
+
+        List<MemberTeamDto> result = memberJPARepository.searchMemberTeamDtoByParameter(condition);
+        assertThat(result).extracting("username").containsExactly("Member4");
+
+        MemberSearchCondition condition2 = new MemberSearchCondition();
+        condition.setTeamName("TeamB");
+
+        List<MemberTeamDto> result2 = memberJPARepository.searchMemberTeamDtoByParameter(condition2);
+        assertThat(result2).extracting("username").contains("Member3", "Member4");
+
+    }
 }
