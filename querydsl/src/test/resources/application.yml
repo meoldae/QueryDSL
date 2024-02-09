@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/dev/db/h2/querydsl
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        #        show_sql: true
+        format_sql: true
+  #        use_sql_comments: true  # QueryDSL 을 사용하며 JPQL이 궁금할 때
+  profiles:
+    active: test
+
+logging:
+  level:
+    org.hibernate.SQL: debug
