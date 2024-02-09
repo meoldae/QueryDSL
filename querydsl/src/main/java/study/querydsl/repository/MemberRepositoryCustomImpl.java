@@ -2,12 +2,14 @@ package study.querydsl.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import study.querydsl.dto.MemberSearchCondition;
@@ -111,7 +113,18 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long totalCount = jpaQueryFactory
+//        Long totalCount = jpaQueryFactory
+//                .select(member.count())
+//                .from(member)
+//                .leftJoin(member.team, team)
+//                .where(
+//                        usernameEq(condition.getUsername()),
+//                        teamNameEq(condition.getTeamName()),
+//                        ageGoe(condition.getAgeGoe()),
+//                        ageLoe(condition.getAgeLoe())
+//                ).fetchOne();
+
+        JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(member.count())
                 .from(member)
                 .leftJoin(member.team, team)
@@ -120,8 +133,14 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                         teamNameEq(condition.getTeamName()),
                         ageGoe(condition.getAgeGoe()),
                         ageLoe(condition.getAgeLoe())
-                ).fetchOne();
+                );
 
-        return new PageImpl<MemberTeamDto>(contents, pageable, totalCount);
+//        return new PageImpl<MemberTeamDto>(contents, pageable, totalCount);
+        /**
+         * count 쿼리가 실행되지 않는 경우 : 마지막 페이지일 때
+         * 1. 시작 페이지면서 조회된 데이터의 갯수가 페이지 크기보다 작을 때
+         * 2. 맨 마지막 페이지이면서 조회된 갯수가 페이지 크기보다 작을 때
+         */
+        return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
     }
 }
